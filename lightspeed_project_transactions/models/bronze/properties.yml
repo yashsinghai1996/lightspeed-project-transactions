@@ -1,0 +1,107 @@
+version: 2
+
+models:
+  - name: bronze_transactions #  Must match the filename of a model -- including case sensitivity.
+    config:
+      materialized: table
+    description: Transaction-level fact table capturing payment behavior, merchant attributes, and error signals.
+    columns:
+      - name: id
+        data_tests:
+          - unique
+          - not_null
+        description: Primary key for each transaction record.
+      - name: date
+        description: Timestamp when the transaction occurred.
+      - name: client_id
+        description: Foreign key to users.id.
+      - name: card_id
+        description: Identifier for the payment card used in the transaction.
+      - name: amount
+        description: Transaction amount stored as a string in the source and requiring cleaning before casting.
+      - name: use_chip
+        description: Payment method signal indicating chip, swipe, or similar card usage behavior.
+      - name: merchant_id
+        description: Identifier for the merchant associated with the transaction.
+      - name: merchant_city
+        description: City where the merchant is located.
+      - name: merchant_state
+        description: State where the merchant is located.
+      - name: zip
+        description: Merchant ZIP or postal code.
+      - name: mcc
+        description: Merchant category code.
+      - name: errors
+        description: Error or decline signals captured for the transaction.
+
+  - name: bronze_users
+    config:
+      materialized: table
+    description: User-level dimension table with demographic, financial, and credit attributes used for segmentation.
+    columns:
+      - name: id
+        data_tests:
+          - unique
+          - not_null
+        description: Primary key for each user record.
+      - name: current_age
+        description: Current age of the user.
+      - name: retirement_age
+        description: Expected or assigned retirement age of the user.
+      - name: birth_year
+        description: Birth year of the user.
+      - name: birth_month
+        description: Birth month of the user.
+      - name: gender
+        description: Gender of the user.
+      - name: address
+        description: User address.
+      - name: latitude
+        description: Latitude of the user's location.
+      - name: longitude
+        description: Longitude of the user's location.
+      - name: per_capita_income
+        description: Per-capita income stored as a string in the source and requiring casting.
+      - name: yearly_income
+        description: Yearly income stored as a string in the source and requiring casting.
+      - name: total_debt
+        description: Total debt stored as a string in the source and requiring casting.
+      - name: credit_score
+        description: Credit score of the user.
+      - name: num_credit_cards
+        description: Number of credit cards associated with the user.
+  
+  - name: bronze_cards
+    config:
+      materialized: table
+    description: Card-level dimension table containing card attributes, issuance details, and account security indicators.
+    columns:
+      - name: id
+        data_tests:
+          - unique
+          - not_null
+        description: Primary key for each card record.
+      - name: client_id
+        description: Foreign key to users.id.
+      - name: card_brand
+        description: Brand of the card, such as Visa or Mastercard.
+      - name: card_type
+        description: Type of card, such as credit, debit, or prepaid.
+      - name: card_number
+        description: Card number value from the source data.
+      - name: expires
+        description: Card expiration date.
+      - name: cvv
+        description: Card verification value from the source data.
+      - name: has_chip
+        description: Indicator showing whether the card has a chip.
+      - name: num_cards_issued
+        description: Number of cards issued on the account or card relationship.
+      - name: credit_limit
+        description: Credit limit stored as a string in the source and requiring cleaning before casting.
+      - name: acct_open_date
+        description: Account open date for the card.
+      - name: year_pin_last_changed
+        description: Year when the card PIN was last changed.
+      - name: card_on_dark_web
+        description: Indicator showing whether the card appears on the dark web.

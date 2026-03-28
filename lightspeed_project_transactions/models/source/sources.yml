@@ -1,0 +1,10 @@
+version: 2
+
+sources:
+  - name: source
+    database: dbt_transactions_lifecycle_dev  
+    schema: source  
+    tables:
+      - name: transactions_data
+      - name: users_data
+      - name: cards_data

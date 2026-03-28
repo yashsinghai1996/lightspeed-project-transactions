@@ -1,0 +1,179 @@
+version: 2
+
+models:
+  - name: dim_users
+    description: User dimension table containing demographic, financial, and credit attributes for segmentation.
+    columns:
+      - name: user_id
+        data_tests:
+          - unique
+          - not_null
+
+  - name: dim_cards
+    description: Card dimension table containing card, account, and security attributes.
+    columns:
+      - name: card_id
+        data_tests:
+          - unique
+          - not_null
+      - name: user_id
+        data_tests:
+          - relationships:
+              to: ref('dim_users')
+              field: user_id
+
+  - name: fact_transactions
+    description: Incremental transaction fact table at transaction grain for downstream metrics and reporting. The model uses transaction_id as the unique key and incrementally processes records based on the latest transaction_date already loaded.
+    columns:
+      - name: transaction_id
+        description: Unique identifier for each transaction and the incremental model unique key.
+        data_tests:
+          - unique
+          - not_null
+      - name: user_id
+        description: Foreign key to the user dimension.
+        data_tests:
+          - not_null
+          - relationships:
+              to: ref('dim_users')
+              field: user_id
+      - name: card_id
+        description: Foreign key to the card dimension.
+        data_tests:
+          - not_null
+          - relationships:
+              to: ref('dim_cards')
+              field: card_id
+      - name: transaction_date
+        description: Transaction timestamp used for event-time analysis and incremental loading boundaries.
+        data_tests:
+          - not_null
+      - name: amount
+        description: Cleaned transaction amount.
+        data_tests:
+          - not_null
+
+  - name: dim_user_segments
+    description: User segmentation dimension derived from demographic, income, debt, and credit attributes.
+    columns:
+      - name: user_id
+        data_tests:
+          - unique
+          - not_null
+          - relationships:
+              to: ref('dim_users')
+              field: user_id
+      - name: age_band
+        data_tests:
+          - not_null
+          - accepted_values:
+              values: ['18-24', '25-34', '35-44', '45-54', '55-64', '65+']
+      - name: income_band
+        data_tests:
+          - not_null
+          - accepted_values:
+              values: ['low_income', 'mid_income', 'upper_mid_income', 'high_income']
+      - name: credit_score_band
+        data_tests:
+          - not_null
+          - accepted_values:
+              values: ['poor', 'fair', 'good', 'very_good', 'excellent']
+      - name: debt_band
+        data_tests:
+          - not_null
+          - accepted_values:
+              values: ['low_debt', 'medium_debt', 'high_debt']
+
+  - name: fct_daily_transactions
+    description: Daily transaction metrics mart for spend, activity, and payment behavior analysis.
+    columns:
+      - name: transaction_day
+        data_tests:
+          - unique
+          - not_null
+      - name: transaction_count
+        data_tests:
+          - not_null
+      - name: active_users
+        data_tests:
+          - not_null
+      - name: active_cards
+        data_tests:
+          - not_null
+      - name: total_amount
+        data_tests:
+          - not_null
+      - name: avg_transaction_amount
+        data_tests:
+          - not_null
+      - name: errored_transaction_count
+        data_tests:
+          - not_null
+      - name: chip_transaction_count
+        data_tests:
+          - not_null
+      - name: non_chip_transaction_count
+        data_tests:
+          - not_null
+
+  - name: fct_cohort_retention_monthly
+    description: Monthly cohort retention mart showing how many users from each first-activity cohort returned in subsequent months. Each cohort is defined by the user's first transaction month, and retention is measured against that original cohort size.
+    columns:
+      - name: cohort_month
+        description: Month in which the user first became active through a transaction.
+        data_tests:
+          - not_null
+      - name: activity_month
+        description: Month in which cohort users were active again and counted as retained.
+        data_tests:
+          - not_null
+      - name: months_since_cohort
+        description: Number of months between the cohort month and the activity month, where 0 represents the acquisition month itself.
+        data_tests:
+          - not_null
+      - name: cohort_size
+        description: Total number of distinct users in the original cohort month.
+        data_tests:
+          - not_null
+      - name: retained_users
+        description: Number of distinct users from the original cohort who were active in the given activity month.
+        data_tests:
+          - not_null
+      - name: retention_rate
+        description: Ratio of retained users to the original cohort size for the given cohort and activity month.
+        data_tests:
+          - not_null
+
+  - name: fct_transactions_by_time_bucket
+    description: Transaction activity mart grouped into time-of-day buckets for analyzing peak transaction windows.
+    columns:
+      - name: time_bucket
+        description: Human-readable time-of-day bucket derived from the transaction timestamp.
+        data_tests:
+          - unique
+          - not_null
+          - accepted_values:
+              values: ['12 AM - 6 AM', '6 AM - 9 AM', '9 AM - 12 PM', '12 PM - 3 PM', '3 PM - 6 PM', '6 PM - 9 PM', '9 PM - 12 AM']
+      - name: bucket_order
+        description: Sort key used to display time buckets in chronological order.
+        data_tests:
+          - unique
+          - not_null
+      - name: transaction_count
+        data_tests:
+          - not_null
+      - name: total_amount
+        data_tests:
+          - not_null
+      - name: avg_transaction_amount
+        data_tests:
+          - not_null
+      - name: errored_transaction_count
+        data_tests:
+          - not_null
+      - name: chip_transaction_count
+        data_tests:
+          - not_null
+      - name: non_chip_transaction_count
+        data_tests:
+          - not_null

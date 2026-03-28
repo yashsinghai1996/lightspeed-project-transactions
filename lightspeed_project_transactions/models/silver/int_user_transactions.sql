@@ -1,0 +1,40 @@
+select
+    t.id as transaction_id,
+    t.date as transaction_date,
+    t.client_id as user_id,
+    t.card_id,
+    t.amount,
+    t.use_chip,
+    t.merchant_id,
+    t.merchant_city,
+    t.merchant_state,
+    t.zip as merchant_zip,
+    t.mcc,
+    t.errors,
+    u.current_age,
+    u.retirement_age,
+    u.birth_year,
+    u.birth_month,
+    u.gender,
+    u.address,
+    u.latitude,
+    u.longitude,
+    u.per_capita_income,
+    u.yearly_income,
+    u.total_debt,
+    u.credit_score,
+    u.num_credit_cards,
+    c.card_brand,
+    c.card_type,
+    c.expires as card_expires_date,
+    c.has_chip,
+    c.num_cards_issued,
+    c.credit_limit,
+    c.acct_open_date,
+    c.year_pin_last_changed,
+    c.card_on_dark_web
+from {{ ref('silver_transactions') }} t
+left join {{ ref('silver_users') }} u
+    on t.client_id = u.id
+left join {{ ref('silver_cards') }} c
+    on t.card_id = c.id

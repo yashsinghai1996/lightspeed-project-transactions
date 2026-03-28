@@ -1,0 +1,61 @@
+version: 2
+
+models:
+  - name: silver_users
+    description: Cleaned user dimension staging model with standardized numeric and geographic fields.
+    columns:
+      - name: id
+        data_tests:
+          - unique
+          - not_null
+
+  - name: silver_transactions
+    description: Cleaned transaction staging model with standardized transaction, merchant, and payment fields.
+    columns:
+      - name: id
+        data_tests:
+          - unique
+          - not_null
+      - name: client_id
+        data_tests:
+          - relationships:
+              to: ref('silver_users')
+              field: id
+      - name: card_id
+        data_tests:
+          - relationships:
+              to: ref('silver_cards')
+              field: id
+
+  - name: silver_cards
+    description: Cleaned card staging model with standardized account, credit, and security attributes.
+    columns:
+      - name: id
+        data_tests:
+          - unique
+          - not_null
+      - name: client_id
+        data_tests:
+          - relationships:
+              to: ref('silver_users')
+              field: id
+
+  - name: int_user_transactions
+    description: Unified Silver model at transaction grain enriched with user and card attributes.
+    columns:
+      - name: transaction_id
+        data_tests:
+          - unique
+          - not_null
+      - name: user_id
+        data_tests:
+          - not_null
+      - name: card_id
+        data_tests:
+          - not_null
+      - name: amount
+        data_tests:
+          - not_null
+      - name: transaction_date
+        data_tests:
+          - not_null

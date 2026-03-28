@@ -1,0 +1,16 @@
+version: 2
+
+snapshots:
+  - name: snapshot_users
+    description: SCD Type 2 snapshot of user attributes built from the Silver users model. Each change to tracked user fields creates a new versioned record with dbt-managed validity timestamps.
+    columns:
+      - name: id
+        description: Business key for the user snapshot.
+        data_tests:
+          - not_null
+      - name: dbt_valid_from
+        description: Timestamp when this snapshot version became valid.
+        data_tests:
+          - not_null
+      - name: dbt_valid_to
+        description: Timestamp when this snapshot version stopped being valid. Null indicates the current active version.
