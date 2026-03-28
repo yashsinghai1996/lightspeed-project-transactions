@@ -54,7 +54,7 @@ models:
           - not_null
 
   - name: dim_user_segments
-    description: User segmentation dimension derived from demographic, income, debt, and credit attributes.
+    description: User segmentation dimension derived from demographic, income, debt, credit, and spend attributes.
     columns:
       - name: user_id
         data_tests:
@@ -63,6 +63,10 @@ models:
           - relationships:
               to: ref('dim_users')
               field: user_id
+      - name: lifetime_total_amount_spent
+        description: Lifetime total transaction amount aggregated from fact_transactions for each user.
+        data_tests:
+          - not_null
       - name: age_band
         data_tests:
           - not_null
@@ -83,6 +87,12 @@ models:
           - not_null
           - accepted_values:
               values: ['low_debt', 'medium_debt', 'high_debt']
+      - name: spend_band
+        description: Spend segment based on lifetime total transaction amount.
+        data_tests:
+          - not_null
+          - accepted_values:
+              values: ['low_spend', 'medium_spend', 'high_spend']
 
   - name: fct_daily_transactions
     description: Daily transaction metrics mart for spend, activity, and payment behavior analysis.
