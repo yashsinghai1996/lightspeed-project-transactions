@@ -4,6 +4,7 @@ select
     count(distinct user_id) as active_users,
     count(distinct card_id) as active_cards,
     sum(amount) as total_amount,
+    sum(amount) / nullif(count(distinct user_id), 0) as avg_transaction_amount_per_user,
     avg(amount) as avg_transaction_amount,
     sum(case when errors is not null then 1 else 0 end) as errored_transaction_count,
     sum(case when errors is not null then 1 else 0 end) * 1.0 / nullif(count(*), 0) as decline_rate,

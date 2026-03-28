@@ -103,6 +103,10 @@ models:
       - name: total_amount
         data_tests:
           - not_null
+      - name: avg_transaction_amount_per_user
+        description: Average daily spend per active user, calculated as total transaction amount divided by distinct active users.
+        data_tests:
+          - not_null
       - name: avg_transaction_amount
         data_tests:
           - not_null
