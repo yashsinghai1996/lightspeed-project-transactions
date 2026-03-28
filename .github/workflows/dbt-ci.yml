@@ -28,7 +28,7 @@ jobs:
       - name: Create dbt profile for CI
         run: |
           mkdir -p "$HOME/.dbt"
-          cat > "$HOME/.dbt/profiles.yml" <<'EOF'
+          cat > "$HOME/.dbt/profiles.yml" <<EOF
           lightspeed_project_transactions:
             outputs:
               ci:
