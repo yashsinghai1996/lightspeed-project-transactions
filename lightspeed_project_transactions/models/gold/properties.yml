@@ -109,6 +109,10 @@ models:
       - name: errored_transaction_count
         data_tests:
           - not_null
+      - name: decline_rate
+        description: Ratio of errored or declined transactions to all transactions for the day.
+        data_tests:
+          - not_null
       - name: chip_transaction_count
         data_tests:
           - not_null
