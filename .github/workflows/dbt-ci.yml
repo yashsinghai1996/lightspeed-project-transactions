@@ -8,6 +8,10 @@ on:
 jobs:
   dbt-parse:
     runs-on: ubuntu-latest
+    env:
+      DATABRICKS_HOST: ${{ secrets.DATABRICKS_HOST }}
+      DATABRICKS_HTTP_PATH: ${{ secrets.DATABRICKS_HTTP_PATH }}
+      DATABRICKS_TOKEN: ${{ secrets.DATABRICKS_TOKEN }}
 
     steps:
       - name: Checkout repository
@@ -31,9 +35,9 @@ jobs:
                 type: databricks
                 catalog: dbt_transactions_lifecycle_dev
                 schema: default
-                host: dummy.cloud.databricks.com
-                http_path: /sql/1.0/warehouses/dummy
-                token: dummy-token
+                host: ${DATABRICKS_HOST:-dummy.cloud.databricks.com}
+                http_path: ${DATABRICKS_HTTP_PATH:-/sql/1.0/warehouses/dummy}
+                token: ${DATABRICKS_TOKEN:-dummy-token}
                 threads: 1
             target: ci
           EOF
@@ -45,3 +49,8 @@ jobs:
       - name: Parse dbt project
         working-directory: lightspeed_project_transactions
         run: dbt parse --profiles-dir "$HOME/.dbt"
+
+      - name: Build dbt project
+        if: ${{ env.DATABRICKS_HOST != '' && env.DATABRICKS_HTTP_PATH != '' && env.DATABRICKS_TOKEN != '' }}
+        working-directory: lightspeed_project_transactions
+        run: dbt build --profiles-dir "$HOME/.dbt"

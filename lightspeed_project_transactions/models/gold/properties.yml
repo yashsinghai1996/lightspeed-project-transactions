@@ -54,7 +54,7 @@ models:
           - not_null
 
   - name: dim_user_segments
-    description: User segmentation dimension derived from demographic, income, debt, credit, and spend attributes.
+    description: User segmentation dimension derived from demographic, income, debt, credit, and spend attributes. Coverage is validated with the singular reconciliation test `test_dim_users_vs_dim_user_segments_rowcount`.
     columns:
       - name: user_id
         data_tests:
