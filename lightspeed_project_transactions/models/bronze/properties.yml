@@ -3,7 +3,7 @@ version: 2
 models:
   - name: bronze_transactions #  Must match the filename of a model -- including case sensitivity.
     config:
-      materialized: table
+      materialized: view
     description: Transaction-level fact table capturing payment behavior, merchant attributes, and error signals.
     columns:
       - name: id
@@ -36,7 +36,7 @@ models:
 
   - name: bronze_users
     config:
-      materialized: table
+      materialized: view
     description: User-level dimension table with demographic, financial, and credit attributes used for segmentation.
     columns:
       - name: id
@@ -73,7 +73,7 @@ models:
   
   - name: bronze_cards
     config:
-      materialized: table
+      materialized: view
     description: Card-level dimension table containing card attributes, issuance details, and account security indicators.
     columns:
       - name: id

@@ -33,7 +33,7 @@ models:
   lightspeed_project_transactions:
     # Config indicated by + and applies to all files under models/example/
     bronze:
-      +materialized: table
+      +materialized: view
       schema: bronze
     silver:
       +materialized: table
