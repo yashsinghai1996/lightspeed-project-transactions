@@ -1,0 +1,62 @@
+name: dbt CD
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+concurrency:
+  group: dbt-cd-main
+  cancel-in-progress: false
+
+jobs:
+  dbt-build:
+    runs-on: ubuntu-latest
+    env:
+      DATABRICKS_HOST: ${{ secrets.DATABRICKS_HOST }}
+      DATABRICKS_HTTP_PATH: ${{ secrets.DATABRICKS_HTTP_PATH }}
+      DATABRICKS_TOKEN: ${{ secrets.DATABRICKS_TOKEN }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Validate required deployment secrets
+        run: |
+          test -n "$DATABRICKS_HOST"
+          test -n "$DATABRICKS_HTTP_PATH"
+          test -n "$DATABRICKS_TOKEN"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Create dbt profile for CD
+        run: |
+          mkdir -p "$HOME/.dbt"
+          cat > "$HOME/.dbt/profiles.yml" <<EOF
+          lightspeed_project_transactions:
+            outputs:
+              prod:
+                type: databricks
+                catalog: dbt_transactions_lifecycle_prod
+                schema: default
+                host: ${DATABRICKS_HOST}
+                http_path: ${DATABRICKS_HTTP_PATH}
+                token: ${DATABRICKS_TOKEN}
+                threads: 1
+            target: prod
+          EOF
+
+      - name: Install dbt packages
+        working-directory: lightspeed_project_transactions
+        run: dbt deps --profiles-dir "$HOME/.dbt"
+
+      - name: Deploy dbt project
+        working-directory: lightspeed_project_transactions
+        run: dbt build --profiles-dir "$HOME/.dbt"
