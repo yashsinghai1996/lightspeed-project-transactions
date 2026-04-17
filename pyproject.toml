@@ -6,5 +6,6 @@ readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
     "dbt-core>=1.11.6",
+    "dbt-bigquery>=1.11.6",
     "dbt-databricks>=1.11.6",
 ]
