@@ -8,4 +8,12 @@ lightspeed_project_transactions:
       http_path: /sql/1.0/warehouses/your-warehouse-id
       token: your-databricks-token
       threads: 1
+    bigquery_dev:
+      type: bigquery
+      method: service-account
+      project: your-gcp-project-id
+      dataset: lightspeed
+      keyfile: /absolute/path/to/service-account-key.json
+      location: US
+      threads: 4
   target: dev

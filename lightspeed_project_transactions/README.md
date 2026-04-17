@@ -402,10 +402,29 @@ To run a specific singular test:
 dbt test --select test_fact_transactions_vs_fct_daily_transactions_reconciliation
 ```
 
+## BigQuery Setup Scaffold
+
+This project can be adapted to run on BigQuery by using the `bigquery_dev` target documented in `profiles.example.yml`.
+
+Before running against BigQuery, create source tables in a BigQuery dataset:
+
+- `transactions_data`
+- `users_data`
+- `cards_data`
+
+Recommended first-pass dataset layout:
+
+- `lightspeed_source` for raw source tables
+- `lightspeed_bronze` for Bronze models
+- `lightspeed_silver` for Silver models
+- `lightspeed_gold` for Gold models
+
+The current `generate_schema_name` macro uses the configured layer schema names directly, so model configs such as `schema: bronze`, `schema: silver`, and `schema: gold` map cleanly to separate BigQuery datasets when paired with an appropriate BigQuery profile.
+
 ## Notes and Assumptions
 
 - This project is currently configured to use the `lightspeed_project_transactions` dbt profile.
-- The repository reflects a Databricks-oriented dbt setup.
+- The repository primarily reflects a Databricks-oriented dbt setup, with a BigQuery target scaffold available for migration.
 - Source freshness checks are not configured because no reliable ingestion timestamp column has been established yet.
 - Time-bucket analysis assumes `transaction_date` includes usable time-of-day information.
 - Incremental logic in `fact_transactions` uses a timestamp watermark strategy suitable for append-heavy event data. If late-arriving updates exist, the strategy should be widened or adjusted.
